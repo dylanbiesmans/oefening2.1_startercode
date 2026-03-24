@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\oefening2.1_startercode\oefening2.1_startercode.csproj" />
     <ProjectReference Include="..\Source\oefening2.1_startercode.csproj" />
   </ItemGroup>
 

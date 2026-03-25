@@ -1,0 +1,48 @@
+name: Autograding Tests
+'on':
+  - push
+  - repository_dispatch
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: windows-latest
+    if: github.actor != 'github-classroom[bot]'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Step 1: Run the actual test. 
+      # We use a standard shell script to avoid the path bugs in the autograder tool.
+      - name: Run Dotnet Tests
+        shell: pwsh
+        run: |
+          dotnet test --configuration Release /p:RestorePackagesPath=./packages
+
+      # Step 2: The Autograder.
+      # Since we already ran the test above, we just use a simple exit check here.
+      - name: Knop 3
+        id: knop-3
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Unit Tests"
+          command: "dotnet test --no-build -c Release" # --no-build is faster
+          timeout: 5
+          max-score: 25
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          KNOP-3_RESULTS: "${{steps.knop-3.outputs.result}}"
+        with:
+          runners: knop-3
